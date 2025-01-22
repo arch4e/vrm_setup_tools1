@@ -69,7 +69,7 @@ namespace VST1
                     SkinnedMeshRenderer[] renderers = vrmPrefab.GetComponentsInChildren<SkinnedMeshRenderer>();
                     foreach (var renderer in renderers) {
                         CreateExpressionsFromSMR(renderer);
-                        // todo: SetExpressionToVRM();
+                        AddExpression();
                     }
                 } else if (sourceOptions[selectedSourceIndex] == "Mesh") CreateExpressionsFromSMR(skinnedMeshRenderer);
 
@@ -162,6 +162,47 @@ namespace VST1
             }
 
             return path;
+        }
+
+        private void AddExpression()
+        {
+            string expressionFilePath = AssetDatabase.GetAssetPath(expressionFolder);
+            DirectoryInfo expressionDir = new DirectoryInfo(expressionFilePath);
+            FileInfo[] expressionFiles  = expressionDir.GetFiles("*.asset");
+            Vrm10Instance vrm = vrmPrefab.GetComponent<Vrm10Instance>();
+
+            foreach (var expressionFile in expressionFiles)
+            {
+                VRM10Expression clip = AssetDatabase.LoadAssetAtPath<VRM10Expression>(expressionFilePath + "/" + expressionFile.Name);
+
+                // guard
+                if (clip?.GetType() != typeof(VRM10Expression)) continue;
+
+                switch (clip.name) {
+                    case "happy": if (vrm.Vrm.Expression.Happy is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.happy, clip); break;
+                    case "angry": if (vrm.Vrm.Expression.Angry is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.angry, clip); break;
+                    case "sad": if (vrm.Vrm.Expression.Sad is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.sad, clip); break;
+                    case "relaxed": if (vrm.Vrm.Expression.Relaxed is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.relaxed, clip); break;
+                    case "surprised": if (vrm.Vrm.Expression.Surprised is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.surprised, clip); break;
+                    case "aa": if (vrm.Vrm.Expression.Aa is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.aa, clip); break;
+                    case "ih": if (vrm.Vrm.Expression.Ih is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.ih, clip); break;
+                    case "ou": if (vrm.Vrm.Expression.Ou is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.ou, clip); break;
+                    case "ee": if (vrm.Vrm.Expression.Ee is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.ee, clip); break;
+                    case "oh": if (vrm.Vrm.Expression.Oh is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.oh, clip); break;
+                    case "blink": if (vrm.Vrm.Expression.Blink is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.blink, clip); break;
+                    case "blinkLeft": if (vrm.Vrm.Expression.BlinkLeft is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.blinkLeft, clip); break;
+                    case "blinkRight": if (vrm.Vrm.Expression.BlinkRight is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.blinkRight, clip); break;
+                    case "lookUp": if (vrm.Vrm.Expression.LookUp is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.lookUp, clip); break;
+                    case "lookDown": if (vrm.Vrm.Expression.LookDown is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.lookDown, clip); break;
+                    case "lookLeft": if (vrm.Vrm.Expression.LookLeft is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.lookLeft, clip); break;
+                    case "lookRight": if (vrm.Vrm.Expression.LookRight is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.lookRight, clip); break;
+                    case "neutral": if (vrm.Vrm.Expression.Neutral is null) vrm.Vrm.Expression.AddClip(ExpressionPreset.neutral, clip); break;
+                    default: if (vrm.Vrm.Expression.CustomClips.IndexOf(clip) < 0) vrm.Vrm.Expression.CustomClips.Add(clip); break;
+                }
+            }
+
+            EditorUtility.SetDirty(vrm.Vrm);
+            AssetDatabase.SaveAssets();
         }
     }
 }
