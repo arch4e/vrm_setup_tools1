@@ -75,6 +75,8 @@ namespace VST1
 
                 Debug.Log("[VST1:Create Expression] finish.");
             }
+
+            if (GUILayout.Button("Remove Null Clips")) RemoveNullClips();
         }
 
         private void CreateExpressionsFromSMR(SkinnedMeshRenderer renderer)
@@ -203,6 +205,16 @@ namespace VST1
 
             EditorUtility.SetDirty(vrm.Vrm);
             AssetDatabase.SaveAssets();
+        }
+
+        public void RemoveNullClips()
+        {
+            var vrm = vrmPrefab?.GetComponent<Vrm10Instance>();
+            var CustomClips = vrm?.Vrm.Expression.CustomClips;
+
+            if (CustomClips == null) return;
+
+            for (int i = CustomClips.Count - 1; i >= 0; --i) if (CustomClips[i] == null) CustomClips.RemoveAt(i);
         }
     }
 }
